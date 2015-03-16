@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Configures the Camel Context-->
+
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+       http://camel.apache.org/schema/spring http://camel.apache.org/schema/spring/camel-spring.xsd">
+
+    <!-- This creates an embedded ActiveMQ Broker -->
+    <!--<broker xmlns="http://activemq.apache.org/schema/core" useJmx="true" persistent="false">
+      <transportConnectors>
+        <transportConnector uri="tcp://localhost:61616" />
+      </transportConnectors>
+    </broker>-->
+    <!--
+        <bean id="activemq" class="org.apache.activemq.camel.component.ActiveMQComponent">
+            <property name="brokerURL" value="failover:tcp://localhost:61616"/>
+        </bean>
+    -->
+    <camelContext xmlns="http://camel.apache.org/schema/spring">
+        <route>
+            <from uri="timer:foo?period=1s"/>
+            <transform>
+                <simple>Message to timeQ ${date:now:yyyy-MM-dd HH:mm:ss.SSS}</simple>
+            </transform>
+            <to uri="activemq:queue:timeQ"/>
+        </route>
+        <route>
+            <from uri="timer:foo?period=2s"/>
+            <transform>
+                <simple>Message to timeT at ${date:now:yyyy-MM-dd HH:mm:ss.SSS}</simple>
+            </transform>
+            <to uri="activemq:topic:timeT"/>
+        </route>
+        <route>
+            <from uri="activemq:queue:testQ1"/>
+            <to uri="activemq:queue:testQ2"/>
+        </route>
+    </camelContext>
+
+</beans>
